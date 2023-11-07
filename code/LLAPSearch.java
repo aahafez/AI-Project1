@@ -1,4 +1,5 @@
     package code;
+    import java.util.ArrayList;
     public class LLAPSearch extends GenericSearch {
     static int prosperity,
     food, materials, energy,
@@ -8,39 +9,61 @@
     amountRequestEnergy, delayRequestEnergy,
     priceBUILD1, foodUseBUILD1, materialsUseBUILD1, energyUseBUILD1, prosperityBUILD1,
     priceBUILD2, foodUseBUILD2, materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2;
+    
     static int money;
+    static ArrayList<String> planArr = new ArrayList<String>();
+    static String plan;
+    static String monetaryCost;
+    static String nodesExpanded;
 
     public static String solve(String initialState, String strategy, boolean visualize){
         money = 100000;
         initializeVariables(initialState);
-        return "Done with Solve";
+        plan = arrayListToString(planArr, ",");
+        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        return result;
     }
     static void requestFood(){
         decrementResources();
+        planArr.add("RequestFood");
     }
     static void requestMaterials(){
         decrementResources();
+        planArr.add("RequestMaterials");
     }
     static void requestEnergy(){
         decrementResources();
+        planArr.add("RequestEnergy");
     }
     static void WAIT(){
         decrementResources();
+        planArr.add("WAIT");
     }
     static void build1(){    // only actions that affect prosperity level
-
+        planArr.add("BUILD1");
     }
     static void build2(){
-
+        planArr.add("BUILD2");
     }
     static void decrementResources(){
         food--; materials--; energy--;
         money = money - (unitPriceEnergy + unitPriceFood + unitPriceMaterials);
     }
+    public static String arrayListToString(ArrayList<String> list, String delimiter) {
+        StringBuilder result = new StringBuilder();
 
+        for (int i = 0; i < list.size(); i++) {
+            result.append(list.get(i));
+
+            if (i < list.size() - 1) {
+                result.append(delimiter);
+            }
+        }
+
+        return result.toString();
+    }
     static void initializeVariables(String initialState){
         String[] values = initialState.split(";|,");
-
         int index = 0;
 
         prosperity = Integer.parseInt(values[index++]);
@@ -76,7 +99,7 @@
 
     }
     static void printVariables(){
-    System.out.println("initialProsperity: " + prosperity);
+        System.out.println("initialProsperity: " + prosperity);
         System.out.println("initialFood: " + food);
         System.out.println("initialMaterials: " + materials);
         System.out.println("initialEnergy: " + energy);
