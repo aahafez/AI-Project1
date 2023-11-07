@@ -1,6 +1,6 @@
-    package code;
-    import java.util.ArrayList;
-    public class LLAPSearch extends GenericSearch {
+package code;
+import java.util.ArrayList;
+public class LLAPSearch extends GenericSearch {
     static int prosperity,
     food, materials, energy,
     unitPriceFood, unitPriceMaterials, unitPriceEnergy,
