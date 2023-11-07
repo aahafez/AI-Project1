@@ -9,7 +9,7 @@
     amountRequestEnergy, delayRequestEnergy,
     priceBUILD1, foodUseBUILD1, materialsUseBUILD1, energyUseBUILD1, prosperityBUILD1,
     priceBUILD2, foodUseBUILD2, materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2;
-    
+
     static int money;
     static ArrayList<String> planArr = new ArrayList<String>();
     static String plan;
@@ -19,6 +19,7 @@
     public static String solve(String initialState, String strategy, boolean visualize){
         money = 100000;
         initializeVariables(initialState);
+        // INSERT LOGIC HERE
         plan = arrayListToString(planArr, ",");
         String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
         return result;
@@ -124,14 +125,13 @@
         System.out.println("prosperityBUILD2: " + prosperityBUILD2);
     }
     public static void main(String[] args) {
-    String initialState0 = "17;" +
-                "49,30,46;" +
-                "7,57,6;" +
-                "7,1;20,2;29,2;" +
-                "350,10,9,8,28;" +
-                "408,8,12,13,34;";
-                solve(initialState0,"ok",false);
-                printVariables();
-    }
-
+        String initialState0 = "17;" +
+                    "49,30,46;" +
+                    "7,57,6;" +
+                    "7,1;20,2;29,2;" +
+                    "350,10,9,8,28;" +
+                    "408,8,12,13,34;";
+                    solve(initialState0,"ok",false);
+                    printVariables();
+        }
     }
