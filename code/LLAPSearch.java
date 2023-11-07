@@ -11,13 +11,14 @@ public class LLAPSearch extends GenericSearch {
     priceBUILD2, foodUseBUILD2, materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2;
 
     static int money;
-    static ArrayList<String> planArr = new ArrayList<String>();
+    static ArrayList<String> planArr;
     static String plan;
     static String monetaryCost;
     static String nodesExpanded;
+    static int delay;
+    static String deliveryType;
 
     public static String solve(String initialState, String strategy, boolean visualize){
-        money = 100000;
         initializeVariables(initialState);
         // INSERT LOGIC HERE
         plan = arrayListToString(planArr, ",");
@@ -27,16 +28,25 @@ public class LLAPSearch extends GenericSearch {
 
     static void requestFood(){
         decrementResources();
+        money -= unitPriceFood * amountRequestFood;
+        delay = delayRequestFood;
+        deliveryType = "FOOD";
         planArr.add("RequestFood");
     }
 
     static void requestMaterials(){
         decrementResources();
+        money -= unitPriceMaterials * amountRequestMaterials;
+        delay = delayRequestMaterials;
+        deliveryType = "MATERIALS";
         planArr.add("RequestMaterials");
     }
 
     static void requestEnergy(){
         decrementResources();
+        money -= unitPriceEnergy * amountRequestEnergy;
+        delay = delayRequestEnergy;
+        deliveryType = "ENERGY";
         planArr.add("RequestEnergy");
     }
 
@@ -55,7 +65,6 @@ public class LLAPSearch extends GenericSearch {
 
     static void decrementResources(){
         food--; materials--; energy--;
-        money = money - (unitPriceEnergy + unitPriceFood + unitPriceMaterials);
     }
 
     public static String arrayListToString(ArrayList<String> list, String delimiter) {
@@ -72,6 +81,10 @@ public class LLAPSearch extends GenericSearch {
     }
 
     static void initializeVariables(String initialState){
+        money = 100000;
+        planArr = new ArrayList<String>();
+        monetaryCost = "";
+        nodesExpanded = "";
         String[] values = initialState.split(";|,");
         int index = 0;
 
