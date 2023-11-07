@@ -24,32 +24,40 @@
         String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
         return result;
     }
+
     static void requestFood(){
         decrementResources();
         planArr.add("RequestFood");
     }
+
     static void requestMaterials(){
         decrementResources();
         planArr.add("RequestMaterials");
     }
+
     static void requestEnergy(){
         decrementResources();
         planArr.add("RequestEnergy");
     }
+
     static void WAIT(){
         decrementResources();
         planArr.add("WAIT");
     }
+    
     static void build1(){    // only actions that affect prosperity level
         planArr.add("BUILD1");
     }
+
     static void build2(){
         planArr.add("BUILD2");
     }
+
     static void decrementResources(){
         food--; materials--; energy--;
         money = money - (unitPriceEnergy + unitPriceFood + unitPriceMaterials);
     }
+
     public static String arrayListToString(ArrayList<String> list, String delimiter) {
         StringBuilder result = new StringBuilder();
 
@@ -60,9 +68,9 @@
                 result.append(delimiter);
             }
         }
-
         return result.toString();
     }
+
     static void initializeVariables(String initialState){
         String[] values = initialState.split(";|,");
         int index = 0;
@@ -99,6 +107,7 @@
         prosperityBUILD2 = Integer.parseInt(values[index++]);
 
     }
+    
     static void printVariables(){
         System.out.println("initialProsperity: " + prosperity);
         System.out.println("initialFood: " + food);
@@ -124,6 +133,7 @@
         System.out.println("energyUseBUILD2: " + energyUseBUILD2);
         System.out.println("prosperityBUILD2: " + prosperityBUILD2);
     }
+    
     public static void main(String[] args) {
         String initialState0 = "17;" +
                     "49,30,46;" +
@@ -131,7 +141,7 @@
                     "7,1;20,2;29,2;" +
                     "350,10,9,8,28;" +
                     "408,8,12,13,34;";
-                    solve(initialState0,"ok",false);
-                    printVariables();
-        }
+        solve(initialState0,"ok",false);
+        printVariables();
     }
+}
