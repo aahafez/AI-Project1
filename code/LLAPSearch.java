@@ -1,27 +1,53 @@
-package code;
-public class LLAPSearch extends GenericSearch {
-    static int initialProsperity,
-    initialFood, initialMaterials, initialEnergy,
+    package code;
+    public class LLAPSearch extends GenericSearch {
+    static int prosperity,
+    food, materials, energy,
     unitPriceFood, unitPriceMaterials, unitPriceEnergy,
     amountRequestFood, delayRequestFood,
     amountRequestMaterials, delayRequestMaterials,
     amountRequestEnergy, delayRequestEnergy,
     priceBUILD1, foodUseBUILD1, materialsUseBUILD1, energyUseBUILD1, prosperityBUILD1,
     priceBUILD2, foodUseBUILD2, materialsUseBUILD2, energyUseBUILD2, prosperityBUILD2;
+    static int money;
+
     public static String solve(String initialState, String strategy, boolean visualize){
-        loadVariables(initialState);
+        money = 100000;
+        initializeVariables(initialState);
         return "Done with Solve";
-   }
-   static void loadVariables(String initialState){
+    }
+    static void requestFood(){
+        decrementResources();
+    }
+    static void requestMaterials(){
+        decrementResources();
+    }
+    static void requestEnergy(){
+        decrementResources();
+    }
+    static void WAIT(){
+        decrementResources();
+    }
+    static void build1(){    // only actions that affect prosperity level
+
+    }
+    static void build2(){
+
+    }
+    static void decrementResources(){
+        food--; materials--; energy--;
+        money = money - (unitPriceEnergy + unitPriceFood + unitPriceMaterials);
+    }
+
+    static void initializeVariables(String initialState){
         String[] values = initialState.split(";|,");
 
         int index = 0;
 
-        initialProsperity = Integer.parseInt(values[index++]);
+        prosperity = Integer.parseInt(values[index++]);
 
-        initialFood = Integer.parseInt(values[index++]);
-        initialMaterials = Integer.parseInt(values[index++]);
-        initialEnergy = Integer.parseInt(values[index++]);
+        food = Integer.parseInt(values[index++]);
+        materials = Integer.parseInt(values[index++]);
+        energy = Integer.parseInt(values[index++]);
 
         unitPriceFood = Integer.parseInt(values[index++]);
         unitPriceMaterials = Integer.parseInt(values[index++]);
@@ -48,12 +74,12 @@ public class LLAPSearch extends GenericSearch {
         energyUseBUILD2 = Integer.parseInt(values[index++]);
         prosperityBUILD2 = Integer.parseInt(values[index++]);
 
-   }
-   static void printVariables(){
-    System.out.println("initialProsperity: " + initialProsperity);
-        System.out.println("initialFood: " + initialFood);
-        System.out.println("initialMaterials: " + initialMaterials);
-        System.out.println("initialEnergy: " + initialEnergy);
+    }
+    static void printVariables(){
+    System.out.println("initialProsperity: " + prosperity);
+        System.out.println("initialFood: " + food);
+        System.out.println("initialMaterials: " + materials);
+        System.out.println("initialEnergy: " + energy);
         System.out.println("unitPriceFood: " + unitPriceFood);
         System.out.println("unitPriceMaterials: " + unitPriceMaterials);
         System.out.println("unitPriceEnergy: " + unitPriceEnergy);
@@ -73,8 +99,8 @@ public class LLAPSearch extends GenericSearch {
         System.out.println("materialsUseBUILD2: " + materialsUseBUILD2);
         System.out.println("energyUseBUILD2: " + energyUseBUILD2);
         System.out.println("prosperityBUILD2: " + prosperityBUILD2);
-   }
-   public static void main(String[] args) {
+    }
+    public static void main(String[] args) {
     String initialState0 = "17;" +
                 "49,30,46;" +
                 "7,57,6;" +
@@ -83,6 +109,6 @@ public class LLAPSearch extends GenericSearch {
                 "408,8,12,13,34;";
                 solve(initialState0,"ok",false);
                 printVariables();
-   }
+    }
 
-}
+    }
