@@ -1,5 +1,5 @@
 package code;
 
-public class GenericSearch {
+public abstract class GenericSearch {
     
 }
