@@ -1,5 +1,8 @@
 package code;
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 public class LLAPSearch extends GenericSearch {
     static int prosperity,
     food, materials, energy,
@@ -13,14 +16,115 @@ public class LLAPSearch extends GenericSearch {
     static int money;
     static ArrayList<String> planArr;
     static String plan;
-    static String monetaryCost;
+    static int monetaryCost;
     static String nodesExpanded;
     static int delay;
     static String deliveryType;
+    static int cost;
 
     public static String solve(String initialState, String strategy, boolean visualize){
         initializeVariables(initialState);
         // INSERT LOGIC HERE
+        String result;
+        switch (strategy) {
+            case "BF":
+                result = BF();
+                break;
+            case "DF":
+                result = DF();
+                break;
+            case "UC":
+                result = UC();
+                break;
+            case "ID":
+                result = ID();
+                break;
+            case "GR1":
+                result = GR1();
+                break;
+            case "GR2":
+                result = GR2();
+                break;
+            case "AS1":
+                result = AS1();
+                break;
+            case "AS2":
+                result = AS2();
+                break;
+            default:
+                result = "no result";
+                break;
+        }
+        return result;
+    }
+
+    @Override
+    protected Queue<Node> makeQ(Node node, String strategy){
+        switch (strategy) {
+            case "BF":
+                //queue
+                break;
+            case "DF":
+                //stack
+                break;
+            case "ID":
+                //stack
+                break;
+            default:
+                //prio
+                break;
+        }
+    }
+
+    @Override
+    protected Queue<Node> expand(Node node, String[] operators){
+        //same for all
+    }
+
+    static String BF(){
+        plan = arrayListToString(planArr, ",");
+        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        return result;
+    }
+
+    static String DF(){
+        plan = arrayListToString(planArr, ",");
+        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        return result;
+    }
+
+    static String UC(){
+        plan = arrayListToString(planArr, ",");
+        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        return result;
+    }
+
+    static String ID(){
+        // slide 65 in lecture 2
+        plan = arrayListToString(planArr, ",");
+        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        return result;
+    }
+
+    static String GR1(){
+        plan = arrayListToString(planArr, ",");
+        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        return result;
+    }
+
+    static String GR2(){
+        plan = arrayListToString(planArr, ",");
+        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        return result;
+    }
+
+    static String AS1(){
+        plan = arrayListToString(planArr, ",");
+        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        return result;
+    }
+
+    static String AS2(){
         plan = arrayListToString(planArr, ",");
         String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
         return result;
@@ -28,7 +132,6 @@ public class LLAPSearch extends GenericSearch {
 
     static void requestFood(){
         decrementResources();
-        money -= unitPriceFood * amountRequestFood;
         delay = delayRequestFood;
         deliveryType = "FOOD";
         planArr.add("RequestFood");
@@ -36,7 +139,6 @@ public class LLAPSearch extends GenericSearch {
 
     static void requestMaterials(){
         decrementResources();
-        money -= unitPriceMaterials * amountRequestMaterials;
         delay = delayRequestMaterials;
         deliveryType = "MATERIALS";
         planArr.add("RequestMaterials");
@@ -44,7 +146,6 @@ public class LLAPSearch extends GenericSearch {
 
     static void requestEnergy(){
         decrementResources();
-        money -= unitPriceEnergy * amountRequestEnergy;
         delay = delayRequestEnergy;
         deliveryType = "ENERGY";
         planArr.add("RequestEnergy");
@@ -52,19 +153,28 @@ public class LLAPSearch extends GenericSearch {
 
     static void WAIT(){
         decrementResources();
+        if (delay > 0) delay--;
         planArr.add("WAIT");
     }
     
     static void build1(){    // only actions that affect prosperity level
+        if (delay > 0) delay--;
+        cost = unitPriceEnergy * amountRequestEnergy + unitPriceFood * amountRequestFood + unitPriceMaterials * amountRequestMaterials;
+        monetaryCost += cost;
+        money -= cost;
         planArr.add("BUILD1");
     }
 
     static void build2(){
+        if (delay > 0) delay--;
         planArr.add("BUILD2");
     }
 
     static void decrementResources(){
         food--; materials--; energy--;
+        cost = unitPriceEnergy + unitPriceFood + unitPriceMaterials;
+        monetaryCost += cost;
+        money -= cost;
     }
 
     public static String arrayListToString(ArrayList<String> list, String delimiter) {
@@ -156,5 +266,26 @@ public class LLAPSearch extends GenericSearch {
                     "408,8,12,13,34;";
         solve(initialState0,"ok",false);
         printVariables();
+    }
+}
+
+class UCComparator implements Comparator<Node> {
+    public int compare(Node str1, Node str2)
+    {
+        //return second_Str.compareTo(first_Str);
+    }
+}
+
+class GRComparator implements Comparator<Node> {
+    public int compare(Node str1, Node str2)
+    {
+        //return second_Str.compareTo(first_Str);
+    }
+}
+
+class ASComparator implements Comparator<Node> {
+    public int compare(Node str1, Node str2)
+    {
+        //return second_Str.compareTo(first_Str);
     }
 }
