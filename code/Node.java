@@ -1,13 +1,7 @@
 package code;
-public abstract class Node {
+public class Node {
     private State state;
 
-    // root constructor
-    public Node(int initialProsperity, int intialFood, int initialEnergy, int initialMaterials){
-        state = new State(initialProsperity, intialFood, initialEnergy, initialMaterials, 0);
-    }
-
-    // child constructor
     public Node(int prosperity, int food, int energy, int materials, int moneySpent) {
         state = new State(prosperity, food, energy, materials, moneySpent);
     }
