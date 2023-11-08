@@ -8,7 +8,7 @@ public abstract class Node {
     }
 
     // child constructor
-    public Node(int prosperity, int food, int energy, int materials, int delayRemaining, int moneySpent) {
+    public Node(int prosperity, int food, int energy, int materials, int moneySpent) {
         state = new State(prosperity, food, energy, materials, moneySpent);
     }
 
