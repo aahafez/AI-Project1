@@ -2,7 +2,9 @@ package code;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Stack;
 public class LLAPSearch extends GenericSearch {
     static int prosperity,
     food, materials, energy,
@@ -60,25 +62,55 @@ public class LLAPSearch extends GenericSearch {
 
     @Override
     protected Queue<Node> makeQ(Node node, String strategy){
+        Queue<Node> list;
         switch (strategy) {
             case "BF":
                 //queue
+                list = new LinkedList<>();
                 break;
             case "DF":
                 //stack
+                //list = new Stack<String>();
+                list = new LinkedList<>();
                 break;
             case "ID":
                 //stack
+                list = new LinkedList<>();
                 break;
             default:
                 //prio
+                list = new PriorityQueue<>();
                 break;
         }
+        return list;
     }
 
     @Override
     protected Queue<Node> expand(Node node, String[] operators){
-        //same for all
+        Queue<Node> expansionList = new LinkedList<>();
+        // which children to make
+        return expansionList;
+    }
+
+    public static int getCost(String action) {
+        switch (action.toLowerCase()) {
+            case "requestfood":
+            case "requestmaterials":
+            case "requestenergy":
+            case "wait":
+                cost = unitPriceEnergy + unitPriceFood + unitPriceMaterials;
+                break;
+            case "build1":
+                cost = priceBUILD1 + unitPriceEnergy * energyUseBUILD1 + unitPriceFood * foodUseBUILD1 + unitPriceMaterials * materialsUseBUILD1;
+                break;
+            case "build2":
+                cost = priceBUILD2 + unitPriceEnergy * energyUseBUILD2 + unitPriceFood * foodUseBUILD2 + unitPriceMaterials * materialsUseBUILD2;
+                break;
+            default:
+                cost = 0;
+                break;
+        }
+        return cost;
     }
 
     static String BF(){
@@ -193,8 +225,9 @@ public class LLAPSearch extends GenericSearch {
     static void initializeVariables(String initialState){
         money = 100000;
         planArr = new ArrayList<String>();
-        monetaryCost = "";
+        monetaryCost = 0;
         nodesExpanded = "";
+        delay = 0;
         String[] values = initialState.split(";|,");
         int index = 0;
 
@@ -269,23 +302,23 @@ public class LLAPSearch extends GenericSearch {
     }
 }
 
-class UCComparator implements Comparator<Node> {
-    public int compare(Node str1, Node str2)
-    {
-        //return second_Str.compareTo(first_Str);
-    }
-}
+// class UCComparator implements Comparator<Node> {
+//     public int compare(Node str1, Node str2)
+//     {
+//         //return second_Str.compareTo(first_Str);
+//     }
+// }
 
-class GRComparator implements Comparator<Node> {
-    public int compare(Node str1, Node str2)
-    {
-        //return second_Str.compareTo(first_Str);
-    }
-}
+// class GRComparator implements Comparator<Node> {
+//     public int compare(Node str1, Node str2)
+//     {
+//         //return second_Str.compareTo(first_Str);
+//     }
+// }
 
-class ASComparator implements Comparator<Node> {
-    public int compare(Node str1, Node str2)
-    {
-        //return second_Str.compareTo(first_Str);
-    }
-}
+// class ASComparator implements Comparator<Node> {
+//     public int compare(Node str1, Node str2)
+//     {
+//         //return second_Str.compareTo(first_Str);
+//     }
+

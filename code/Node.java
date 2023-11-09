@@ -1,15 +1,26 @@
 package code;
 public class Node {
     private State state;
+    private Node parent;
+    private int cost;
 
-    public Node(int prosperity, int food, int energy, int materials, int moneySpent) {
-        state = new State(prosperity, food, energy, materials, moneySpent);
+    public Node(Node parent, int cost, int prosperity, int food, int energy, int materials, int moneySpent) {
+        this.parent = parent;
+        this.cost = cost;
+        this.state = new State(prosperity, food, energy, materials, moneySpent);
     }
 
     public State getState() {
         return state;
     }
+    
+    public int getCost() {
+        return cost;
+    }
 
+    public Node getParent() {
+        return parent;
+    }
     public static class State {
 
         private int prosperity;
