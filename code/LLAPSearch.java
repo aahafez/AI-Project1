@@ -21,8 +21,17 @@ public class LLAPSearch extends GenericSearch {
     static int monetaryCost;
     static String nodesExpanded;
     static int delay;
-    static String deliveryType;
+ //   static String deliveryType;
     static int cost;
+    static int currentCost;
+    static int currentProsperity;
+    static int currentFood;
+    static int currentEnergy;
+    static int currentMaterials;        
+    static int moneySpent;
+    static int currentDelay;
+    static String currentDeliveryType;
+    static int expandedNodes;
 
     public static String solve(String initialState, String strategy, boolean visualize){
         initializeVariables(initialState);
@@ -70,7 +79,7 @@ public class LLAPSearch extends GenericSearch {
                 break;
             case "DF":
                 //stack
-                //list = new Stack<String>();
+                //list = new Stack<Node>();
                 list = new LinkedList<>();
                 break;
             case "ID":
@@ -162,44 +171,84 @@ public class LLAPSearch extends GenericSearch {
         return result;
     }
 
-    static void requestFood(){
+    static Node createChild(Node parent, String action, int prosperity, int food, int energy, int materials){  // WAIT + build1 + build2
+        planArr.add(action);
+        currentCost = getCost(action);
+        currentProsperity = parent.getState().getProsperity() + prosperity;
+        currentFood = parent.getState().getFood() - food;
+        currentEnergy = parent.getState().getEnergy() - energy;
+        currentMaterials = parent.getState().getMaterials() - materials;
+        moneySpent =  parent.getState().getMoneySpent() + currentCost;
+        currentDeliveryType = parent.getDeliveryType();
+        currentDelay = parent.getDelay() - 1;
+        if (currentDelay <= 0){
+            currentDelay = 0;
+            switch (parent.getDeliveryType()) {
+                case "food":
+                    currentFood += amountRequestFood;
+                    currentDeliveryType = null;
+                    break;
+                case "energy":
+                    currentEnergy += amountRequestEnergy;
+                    currentDeliveryType = null;
+                    break;
+                case "materials":
+                    currentMaterials += amountRequestMaterials;
+                    currentDeliveryType = null;
+                    break;
+                default:
+                    break;
+            }
+        }
+        Node child = new Node(parent, action, currentCost, currentDelay, currentDeliveryType, currentProsperity, currentFood, currentEnergy, currentMaterials, moneySpent);
+        expandedNodes++;
+        return child;
+    }
+    static Node createChild(Node parent, String action, String deliveryType, int initialDelay){  // request
+        planArr.add(action);
+        currentCost = getCost(action);
+        currentProsperity = parent.getState().getProsperity();
+        currentFood = parent.getState().getFood();
+        currentEnergy = parent.getState().getEnergy();
+        currentMaterials = parent.getState().getMaterials();
+        moneySpent =  parent.getState().getMoneySpent() + currentCost;
+        Node child = new Node(parent, action, currentCost, initialDelay, deliveryType, currentProsperity, currentFood, currentEnergy, currentMaterials, moneySpent);
+        expandedNodes++;
+        return child;
+    }
+    static Node requestFood(Node parent){
         decrementResources();
-        delay = delayRequestFood;
-        deliveryType = "FOOD";
-        planArr.add("RequestFood");
+
+        return createChild(parent, "requestFood", "food", delayRequestFood);
     }
 
-    static void requestMaterials(){
+    static Node requestMaterials(Node parent){
         decrementResources();
-        delay = delayRequestMaterials;
-        deliveryType = "MATERIALS";
-        planArr.add("RequestMaterials");
+        return createChild(parent, "requestMaterials", "materials", delayRequestMaterials);
     }
 
-    static void requestEnergy(){
+    static Node requestEnergy(Node parent){
         decrementResources();
-        delay = delayRequestEnergy;
-        deliveryType = "ENERGY";
-        planArr.add("RequestEnergy");
+        return createChild(parent, "requestEnergy", "energy", delayRequestEnergy);
     }
 
-    static void WAIT(){
+    static Node WAIT(Node parent){
         decrementResources();
         if (delay > 0) delay--;
-        planArr.add("WAIT");
+        return createChild(parent, "WAIT", 0,0,0,0);
     }
     
-    static void build1(){    // only actions that affect prosperity level
+    static Node build1(Node parent){    // only actions that affect prosperity level
         if (delay > 0) delay--;
         cost = unitPriceEnergy * amountRequestEnergy + unitPriceFood * amountRequestFood + unitPriceMaterials * amountRequestMaterials;
         monetaryCost += cost;
         money -= cost;
-        planArr.add("BUILD1");
+        return createChild(parent, "build1", prosperityBUILD1, foodUseBUILD1, energyUseBUILD1, materialsUseBUILD1);
     }
 
-    static void build2(){
+    static Node build2(Node parent){
         if (delay > 0) delay--;
-        planArr.add("BUILD2");
+        return createChild(parent, "build2", prosperityBUILD2, foodUseBUILD2, energyUseBUILD2, materialsUseBUILD2);
     }
 
     static void decrementResources(){
