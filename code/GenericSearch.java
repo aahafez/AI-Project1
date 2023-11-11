@@ -13,7 +13,7 @@ public abstract class GenericSearch {
 
     protected abstract Queue<Node> makeQ(Node node, String strategy);
 
-    protected abstract Queue<Node> expand(Node node, String[] operators);
+    
 
    // protected abstract <T> T genericSearch(Problem problem, Queue<Node> q);
 

@@ -1,10 +1,12 @@
 package code;
 import java.util.ArrayList;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Stack;
+import java.util.HashSet;
 public class LLAPSearch extends GenericSearch {
     static int prosperity,
     food, materials, energy,
@@ -32,9 +34,11 @@ public class LLAPSearch extends GenericSearch {
     static int currentDelay;
     static String currentDeliveryType;
     static int expandedNodes;
+    static Set<Node> visitedNodes;
 
     public static String solve(String initialState, String strategy, boolean visualize){
-        initializeVariables(initialState);
+        Node root = initializeVariables(initialState);
+
         // INSERT LOGIC HERE
         String result;
         switch (strategy) {
@@ -45,7 +49,7 @@ public class LLAPSearch extends GenericSearch {
                 result = DF();
                 break;
             case "UC":
-                result = UC();
+                result = UC(root);
                 break;
             case "ID":
                 result = ID();
@@ -66,6 +70,7 @@ public class LLAPSearch extends GenericSearch {
                 result = "no result";
                 break;
         }
+        System.out.println(result);
         return result;
     }
 
@@ -94,10 +99,17 @@ public class LLAPSearch extends GenericSearch {
         return list;
     }
 
-    @Override
-    protected Queue<Node> expand(Node node, String[] operators){
+    public static Queue<Node> expand(Node node){
         Queue<Node> expansionList = new LinkedList<>();
         // which children to make
+        if (node.getDelay() == 0){
+            expansionList.add(requestFood(node));
+            expansionList.add(requestEnergy(node));
+            expansionList.add(requestMaterials(node));
+        }
+        expansionList.add(WAIT(node));
+        expansionList.add(build1(node));
+        expansionList.add(build2(node));
         return expansionList;
     }
 
@@ -134,9 +146,30 @@ public class LLAPSearch extends GenericSearch {
         return result;
     }
 
-    static String UC(){
+    static String UC(Node root){
+        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getCost));
+        priorityQueue.add(root);
+        while(!priorityQueue.isEmpty()){
+            Node currentNode = priorityQueue.poll();
+
+            if (visitedNodes.contains(currentNode)) {
+                continue; // Skip the node if already visited
+            }
+
+            visitedNodes.add(currentNode);
+            System.out.println(currentNode.getState());
+            if (currentNode.isGoal()) {
+                System.out.println("Goal found with cost: " + currentNode.getCost());
+                System.out.println("Path to goal: " + currentNode.getPath());
+                break;
+            }
+
+            for (Node child : expand(currentNode)) {
+                priorityQueue.add(child);
+            }
+        }
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = plan + ";" + monetaryCost + ";" + expandedNodes;
         return result;
     }
 
@@ -175,6 +208,7 @@ public class LLAPSearch extends GenericSearch {
         planArr.add(action);
         currentCost = getCost(action);
         currentProsperity = parent.getState().getProsperity() + prosperity;
+        if (currentProsperity > 100) currentProsperity = 100;
         currentFood = parent.getState().getFood() - food;
         currentEnergy = parent.getState().getEnergy() - energy;
         currentMaterials = parent.getState().getMaterials() - materials;
@@ -186,14 +220,17 @@ public class LLAPSearch extends GenericSearch {
             switch (parent.getDeliveryType()) {
                 case "food":
                     currentFood += amountRequestFood;
+                    if (currentFood > 50) currentFood = 50;
                     currentDeliveryType = null;
                     break;
                 case "energy":
                     currentEnergy += amountRequestEnergy;
+                    if (currentEnergy > 50) currentEnergy = 50;
                     currentDeliveryType = null;
                     break;
                 case "materials":
                     currentMaterials += amountRequestMaterials;
+                    if (currentMaterials > 50) currentMaterials = 50;
                     currentDeliveryType = null;
                     break;
                 default:
@@ -216,6 +253,8 @@ public class LLAPSearch extends GenericSearch {
         expandedNodes++;
         return child;
     }
+
+    
     static Node requestFood(Node parent){
         decrementResources();
 
@@ -271,7 +310,7 @@ public class LLAPSearch extends GenericSearch {
         return result.toString();
     }
 
-    static void initializeVariables(String initialState){
+    static Node initializeVariables(String initialState){
         money = 100000;
         planArr = new ArrayList<String>();
         monetaryCost = 0;
@@ -279,6 +318,8 @@ public class LLAPSearch extends GenericSearch {
         delay = 0;
         String[] values = initialState.split(";|,");
         int index = 0;
+        visitedNodes = new HashSet<>();
+
 
         prosperity = Integer.parseInt(values[index++]);
 
@@ -310,6 +351,8 @@ public class LLAPSearch extends GenericSearch {
         materialsUseBUILD2 = Integer.parseInt(values[index++]);
         energyUseBUILD2 = Integer.parseInt(values[index++]);
         prosperityBUILD2 = Integer.parseInt(values[index++]);
+
+        return new Node(null, "", 0, 0, "", prosperity, food, energy, materials, 0);
 
     }
     
@@ -346,7 +389,7 @@ public class LLAPSearch extends GenericSearch {
                     "7,1;20,2;29,2;" +
                     "350,10,9,8,28;" +
                     "408,8,12,13,34;";
-        solve(initialState0,"ok",false);
+        solve(initialState0,"UC",false);
         printVariables();
     }
 }

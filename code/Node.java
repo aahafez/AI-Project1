@@ -1,4 +1,7 @@
 package code;
+
+import java.util.Objects;
+
 public class Node {
     private State state;
     private Node parent;
@@ -40,6 +43,18 @@ public class Node {
         return action;
     }
 
+    public void addEnergy(int energy) {
+        this.state.setEnergy(this.state.getEnergy() + energy);
+    }
+
+    public void addFood(int food) {
+        this.state.setEnergy(this.state.getFood() + food);
+    }
+    
+    public void addMaterials(int materials) {
+        this.state.setEnergy(this.state.getMaterials() + materials);
+    }
+
     public String getPath(){
         if (parent == null){ //stopping condition
             return action;
@@ -48,9 +63,27 @@ public class Node {
         }
     }
 
+    public boolean isGoal(){
+        return state.getProsperity() >= 100;
+    }
+
     public String toString(){
-            return "prosperity=" + state.prosperity + ", food=" + state.food +
-             ", materials=" + state.materials + ", energy=" + state.energy + ", money_spent=" + state.moneySpent;
+            return "prosperity=" + state.getProsperity() + ", food=" + state.getFood() +
+             ", materials=" + state.getMaterials() + ", energy=" + state.getEnergy() + ", money_spent=" + state.getMoneySpent();
+    }
+
+    @Override
+        public int hashCode() {
+            // Implement a custom hashCode method based on the properties that define a unique state
+            return Objects.hash(action, state);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            Node node = (Node) obj;
+            return Objects.equals(action, node.action) && Objects.equals(state, node.state);
         }
 
     public static class State {
@@ -84,6 +117,15 @@ public class Node {
         }
         public int getMaterials() {
             return materials;
+        }
+        public void setFood(int food) {
+            this.food = food;
+        }
+        public void setEnergy(int energy) {
+            this.energy = energy;
+        }
+        public void setMaterials(int materials) {
+            this.materials = materials;
         }
         public String toString(){
             return "prosperity=" + this.prosperity + ", food=" + this.food +
