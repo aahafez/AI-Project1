@@ -27,6 +27,14 @@ public class Node {
         return cost;
     }
 
+    public int getCumCost(){
+        if (parent == null){ //stopping condition
+            return cost;
+        } else {
+            return parent.getCost() + cost;
+        }
+    }
+
     public Node getParent() {
         return parent;
     }
@@ -75,7 +83,7 @@ public class Node {
     @Override
         public int hashCode() {
             // Implement a custom hashCode method based on the properties that define a unique state
-            return Objects.hash(action, state);
+            return Objects.hash(action, state.getFood(), state.getEnergy(), state.getMaterials());
         }
 
         @Override

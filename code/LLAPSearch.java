@@ -107,9 +107,9 @@ public class LLAPSearch extends GenericSearch {
             expansionList.add(requestEnergy(node));
             expansionList.add(requestMaterials(node));
         }
-        expansionList.add(WAIT(node));
         expansionList.add(build1(node));
         expansionList.add(build2(node));
+        expansionList.add(WAIT(node));
         return expansionList;
     }
 
@@ -147,7 +147,7 @@ public class LLAPSearch extends GenericSearch {
     }
 
     static String UC(Node root){
-        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getCost));
+        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getCumCost));
         priorityQueue.add(root);
         while(!priorityQueue.isEmpty()){
             Node currentNode = priorityQueue.poll();
@@ -158,6 +158,10 @@ public class LLAPSearch extends GenericSearch {
 
             visitedNodes.add(currentNode);
             System.out.println(currentNode.getState());
+            System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
+            System.out.print(currentNode.getDeliveryType());
+            System.out.println(currentNode.getDelay());
+            System.out.println("_____________________");
             if (currentNode.isGoal()) {
                 System.out.println("Goal found with cost: " + currentNode.getCost());
                 System.out.println("Path to goal: " + currentNode.getPath());
@@ -221,17 +225,17 @@ public class LLAPSearch extends GenericSearch {
                 case "food":
                     currentFood += amountRequestFood;
                     if (currentFood > 50) currentFood = 50;
-                    currentDeliveryType = null;
+                    currentDeliveryType = "none";
                     break;
                 case "energy":
                     currentEnergy += amountRequestEnergy;
                     if (currentEnergy > 50) currentEnergy = 50;
-                    currentDeliveryType = null;
+                    currentDeliveryType = "none";
                     break;
                 case "materials":
                     currentMaterials += amountRequestMaterials;
                     if (currentMaterials > 50) currentMaterials = 50;
-                    currentDeliveryType = null;
+                    currentDeliveryType = "none";
                     break;
                 default:
                     break;
@@ -352,7 +356,7 @@ public class LLAPSearch extends GenericSearch {
         energyUseBUILD2 = Integer.parseInt(values[index++]);
         prosperityBUILD2 = Integer.parseInt(values[index++]);
 
-        return new Node(null, "", 0, 0, "", prosperity, food, energy, materials, 0);
+        return new Node(null, "none", 0, 0, "none", prosperity, food, energy, materials, 0);
 
     }
     
@@ -384,10 +388,10 @@ public class LLAPSearch extends GenericSearch {
     
     public static void main(String[] args) {
         String initialState0 = "17;" +
-                    "49,30,46;" +
+                    "40,30,33;" +
                     "7,57,6;" +
                     "7,1;20,2;29,2;" +
-                    "350,10,9,8,28;" +
+                    "5,2,2,2,28;" +
                     "408,8,12,13,34;";
         solve(initialState0,"UC",false);
         printVariables();
