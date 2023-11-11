@@ -162,8 +162,8 @@ public class LLAPSearch extends GenericSearch {
             System.out.println(currentNode.getDelay());
             System.out.println("_____________________");
             if (currentNode.isGoal()) {
-                System.out.println("Goal found with cost: " + currentNode.getCost());
-                System.out.println("Path to goal: " + currentNode.getPath());
+               // System.out.println("Goal found with cost: " + currentNode.getCost());
+               // System.out.println("Path to goal: " + currentNode.getPath());
                 break;
             }
             if (currentNode.getState().getMoneySpent() >= 100000){
@@ -201,8 +201,8 @@ public class LLAPSearch extends GenericSearch {
             System.out.println(currentNode.getDelay());
             System.out.println("_____________________");
             if (currentNode.isGoal()) {
-                System.out.println("Goal found with cost: " + currentNode.getCost());
-                System.out.println("Path to goal: " + currentNode.getPath());
+               // System.out.println("Goal found with cost: " + currentNode.getCost());
+               // System.out.println("Path to goal: " + currentNode.getPath());
                 break;
             }
 
@@ -287,9 +287,9 @@ public class LLAPSearch extends GenericSearch {
         planArr.add(action);
         currentCost = getCost(action);
         currentProsperity = parent.getState().getProsperity();
-        currentFood = parent.getState().getFood();
-        currentEnergy = parent.getState().getEnergy();
-        currentMaterials = parent.getState().getMaterials();
+        currentFood = parent.getState().getFood() - 1;
+        currentEnergy = parent.getState().getEnergy() - 1;
+        currentMaterials = parent.getState().getMaterials() - 1;
         moneySpent =  parent.getState().getMoneySpent() + currentCost;
         Node child = new Node(parent, action, currentCost, initialDelay, deliveryType, currentProsperity, currentFood, currentEnergy, currentMaterials, moneySpent);
         expandedNodes++;
@@ -316,7 +316,7 @@ public class LLAPSearch extends GenericSearch {
     static Node WAIT(Node parent){
         decrementResources();
         if (delay > 0) delay--;
-        return createChild(parent, "WAIT", 0,0,0,0);
+        return createChild(parent, "WAIT", 0,1,1,1);
     }
     
     static Node build1(Node parent){    // only actions that affect prosperity level
@@ -435,7 +435,7 @@ public class LLAPSearch extends GenericSearch {
                 "300,5,7,3,20;" +
                 "500,8,6,3,40;";
         solve(initialState1,"BF",false);
-        printVariables();
+      //  printVariables();
     }
 }
 
