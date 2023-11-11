@@ -35,6 +35,7 @@ public class LLAPSearch extends GenericSearch {
     static String currentDeliveryType;
     static int expandedNodes;
     static Set<Node> visitedNodes;
+    static int currentMoney;
 
     public static String solve(String initialState, String strategy, boolean visualize){
         Node root = initializeVariables(initialState);
@@ -43,7 +44,7 @@ public class LLAPSearch extends GenericSearch {
         String result;
         switch (strategy) {
             case "BF":
-                result = BF();
+                result = BF(root);
                 break;
             case "DF":
                 result = DF();
@@ -102,14 +103,22 @@ public class LLAPSearch extends GenericSearch {
     public static Queue<Node> expand(Node node){
         Queue<Node> expansionList = new LinkedList<>();
         // which children to make
-        if (node.getDelay() == 0){
-            expansionList.add(requestFood(node));
-            expansionList.add(requestEnergy(node));
-            expansionList.add(requestMaterials(node));
+
+        currentMoney = 100000 - node.getState().getMoneySpent();
+        if(node.getState().getFood() >= foodUseBUILD1 && node.getState().getEnergy() >= energyUseBUILD1 && node.getState().getMaterials() >= materialsUseBUILD1 &&  currentMoney >= priceBUILD1){
+            expansionList.add(build1(node));
         }
-        expansionList.add(build1(node));
-        expansionList.add(build2(node));
-        expansionList.add(WAIT(node));
+        if(node.getState().getFood() >= foodUseBUILD2 && node.getState().getEnergy() >= energyUseBUILD2 && node.getState().getMaterials() >= materialsUseBUILD2 && currentMoney >= priceBUILD2){
+            expansionList.add(build2(node));
+        }
+        if(node.getState().getFood() >= 1 && node.getState().getEnergy() >= 1 && node.getState().getMaterials() >= 1 && currentMoney >= (unitPriceEnergy + unitPriceFood + unitPriceMaterials) ){
+            if (node.getDelay() == 0){
+                expansionList.add(requestMaterials(node));
+                expansionList.add(requestFood(node));
+                expansionList.add(requestEnergy(node));
+            }
+            expansionList.add(WAIT(node));
+        }
         return expansionList;
     }
 
@@ -134,9 +143,38 @@ public class LLAPSearch extends GenericSearch {
         return cost;
     }
 
-    static String BF(){
+    static String BF(Node root){
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
+        Node currentNode = null;
+        while(!queue.isEmpty()){
+            currentNode = queue.poll();
+
+            if (visitedNodes.contains(currentNode)) {
+                continue; // Skip the node if already visited
+            }
+
+            visitedNodes.add(currentNode);
+            System.out.println(currentNode.getState());
+          //  System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
+            System.out.println(currentNode.getPath());
+            System.out.print(currentNode.getDeliveryType());
+            System.out.println(currentNode.getDelay());
+            System.out.println("_____________________");
+            if (currentNode.isGoal()) {
+                System.out.println("Goal found with cost: " + currentNode.getCost());
+                System.out.println("Path to goal: " + currentNode.getPath());
+                break;
+            }
+            if (currentNode.getState().getMoneySpent() >= 100000){
+                return "NOSOLUTION";
+            }
+            for (Node child : expand(currentNode)) {
+                queue.add(child);
+            }
+        }
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
     }
 
@@ -283,7 +321,7 @@ public class LLAPSearch extends GenericSearch {
     
     static Node build1(Node parent){    // only actions that affect prosperity level
         if (delay > 0) delay--;
-        cost = unitPriceEnergy * amountRequestEnergy + unitPriceFood * amountRequestFood + unitPriceMaterials * amountRequestMaterials;
+        cost = priceBUILD1 + unitPriceEnergy * energyUseBUILD1 + unitPriceFood * foodUseBUILD1 + unitPriceMaterials * materialsUseBUILD1;
         monetaryCost += cost;
         money -= cost;
         return createChild(parent, "build1", prosperityBUILD1, foodUseBUILD1, energyUseBUILD1, materialsUseBUILD1);
@@ -291,6 +329,9 @@ public class LLAPSearch extends GenericSearch {
 
     static Node build2(Node parent){
         if (delay > 0) delay--;
+        cost = priceBUILD2 + unitPriceEnergy * energyUseBUILD2 + unitPriceFood * foodUseBUILD2 + unitPriceMaterials * materialsUseBUILD2;
+        monetaryCost += cost;
+        money -= cost;
         return createChild(parent, "build2", prosperityBUILD2, foodUseBUILD2, energyUseBUILD2, materialsUseBUILD2);
     }
 
@@ -356,7 +397,7 @@ public class LLAPSearch extends GenericSearch {
         energyUseBUILD2 = Integer.parseInt(values[index++]);
         prosperityBUILD2 = Integer.parseInt(values[index++]);
 
-        return new Node(null, "none", 0, 0, "none", prosperity, food, energy, materials, 0);
+        return new Node(null, "root", 0, 0, "none", prosperity, food, energy, materials, 0);
 
     }
     
@@ -387,13 +428,13 @@ public class LLAPSearch extends GenericSearch {
     }
     
     public static void main(String[] args) {
-        String initialState0 = "17;" +
-                    "40,30,33;" +
-                    "7,57,6;" +
-                    "7,1;20,2;29,2;" +
-                    "5,2,2,2,28;" +
-                    "408,8,12,13,34;";
-        solve(initialState0,"UC",false);
+        String initialState1 = "50;" +
+                "12,12,12;" +
+                "50,60,70;" +
+                "30,2;19,2;15,2;" +
+                "300,5,7,3,20;" +
+                "500,8,6,3,40;";
+        solve(initialState1,"BF",false);
         printVariables();
     }
 }

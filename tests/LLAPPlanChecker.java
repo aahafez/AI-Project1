@@ -283,10 +283,10 @@ public boolean applyPlan(String grid, String solution){
 
 	LLAPPlanChecker s = new LLAPPlanChecker(grid);
 	linkin = tryPlan(actions,s);
+    System.out.println("test answer: " + s.v12);
 	if(!linkin) {
 		return false;
 		}
-
     return s.cool() && s.v12 ==blue;
 }
 }
