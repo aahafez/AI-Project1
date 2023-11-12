@@ -37,6 +37,9 @@ public class LLAPSearch extends GenericSearch {
     static Set<Node> visitedNodes;
     static int currentMoney;
 
+    static int heuristic1 = 0; // sum of WAIT costs till currentnode
+    static int heuristic2 = 0; // sum of bulding costs till currentnode
+
     public static String solve(String initialState, String strategy, boolean visualize){
         Node root = initializeVariables(initialState);
 
@@ -56,16 +59,16 @@ public class LLAPSearch extends GenericSearch {
                 result = ID();
                 break;
             case "GR1":
-                result = GR1();
+                result = GR1(root);
                 break;
             case "GR2":
-                result = GR2();
+                result = GR2(root);
                 break;
             case "AS1":
-                result = AS1();
+                result = AS1(root);
                 break;
             case "AS2":
-                result = AS2();
+                result = AS2(root);
                 break;
             default:
                 result = "no result";
@@ -222,31 +225,136 @@ public class LLAPSearch extends GenericSearch {
         return result;
     }
 
-    static String GR1(){
+    static String GR1(Node root){
+        //  int comp = getCumCost() + heuristic1;
+        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getHeuristic1));
+        priorityQueue.add(root);
+        while(!priorityQueue.isEmpty()){
+            Node currentNode = priorityQueue.poll();
+
+            if (visitedNodes.contains(currentNode)) {
+                continue; // Skip the node if already visited
+            }
+
+            visitedNodes.add(currentNode);
+            System.out.println(currentNode.getState());
+            System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
+            System.out.print(currentNode.getDeliveryType());
+            System.out.println(currentNode.getDelay());
+            System.out.println(currentNode.getHeuristic1());
+            System.out.println("_____________________");
+            if (currentNode.isGoal()) {
+               // System.out.println("Goal found with cost: " + currentNode.getCost());
+               // System.out.println("Path to goal: " + currentNode.getPath());
+                break;
+            }
+
+            for (Node child : expand(currentNode)) {
+                priorityQueue.add(child);
+            }
+        }
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = plan + ";" + monetaryCost + ";" + expandedNodes;
         return result;
     }
 
-    static String GR2(){
+    static String GR2(Node root){
+        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getHeuristic2));
+        priorityQueue.add(root);
+        while(!priorityQueue.isEmpty()){
+            Node currentNode = priorityQueue.poll();
+
+            if (visitedNodes.contains(currentNode)) {
+                continue; // Skip the node if already visited
+            }
+
+            visitedNodes.add(currentNode);
+            System.out.println(currentNode.getState());
+            System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
+            System.out.print(currentNode.getDeliveryType());
+            System.out.println(currentNode.getDelay());
+            System.out.println(currentNode.getHeuristic2());
+            System.out.println("_____________________");
+            if (currentNode.isGoal()) {
+               // System.out.println("Goal found with cost: " + currentNode.getCost());
+               // System.out.println("Path to goal: " + currentNode.getPath());
+                break;
+            }
+
+            for (Node child : expand(currentNode)) {
+                priorityQueue.add(child);
+            }
+        }
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = plan + ";" + monetaryCost + ";" + expandedNodes;
         return result;
     }
 
-    static String AS1(){
+    static String AS1(Node root){
+        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getStarHeuristic1));
+        priorityQueue.add(root);
+        while(!priorityQueue.isEmpty()){
+            Node currentNode = priorityQueue.poll();
+
+            if (visitedNodes.contains(currentNode)) {
+                continue; // Skip the node if already visited
+            }
+
+            visitedNodes.add(currentNode);
+            System.out.println(currentNode.getState());
+            System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
+            System.out.print(currentNode.getDeliveryType());
+            System.out.println(currentNode.getDelay());
+            System.out.println(currentNode.getStarHeuristic1());
+            System.out.println("_____________________");
+            if (currentNode.isGoal()) {
+               // System.out.println("Goal found with cost: " + currentNode.getCost());
+               // System.out.println("Path to goal: " + currentNode.getPath());
+                break;
+            }
+
+            for (Node child : expand(currentNode)) {
+                priorityQueue.add(child);
+            }
+        }
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = plan + ";" + monetaryCost + ";" + expandedNodes;
         return result;
     }
 
-    static String AS2(){
+    static String AS2(Node root){
+        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getStarHeuristic2));
+        priorityQueue.add(root);
+        while(!priorityQueue.isEmpty()){
+            Node currentNode = priorityQueue.poll();
+
+            if (visitedNodes.contains(currentNode)) {
+                continue; // Skip the node if already visited
+            }
+
+            visitedNodes.add(currentNode);
+            System.out.println(currentNode.getState());
+            System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
+            System.out.print(currentNode.getDeliveryType());
+            System.out.println(currentNode.getDelay());
+            System.out.println(currentNode.getStarHeuristic2());
+            System.out.println("_____________________");
+            if (currentNode.isGoal()) {
+               // System.out.println("Goal found with cost: " + currentNode.getCost());
+               // System.out.println("Path to goal: " + currentNode.getPath());
+                break;
+            }
+
+            for (Node child : expand(currentNode)) {
+                priorityQueue.add(child);
+            }
+        }
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = plan + ";" + monetaryCost + ";" + expandedNodes;
         return result;
     }
 
-    static Node createChild(Node parent, String action, int prosperity, int food, int energy, int materials){  // WAIT + build1 + build2
+    static Node createChild(Node parent, String action, int prosperity, int food, int energy, int materials, int h1, int h2){  // WAIT + build1 + build2
         planArr.add(action);
         currentCost = getCost(action);
         currentProsperity = parent.getState().getProsperity() + prosperity;
@@ -279,11 +387,12 @@ public class LLAPSearch extends GenericSearch {
                     break;
             }
         }
-        Node child = new Node(parent, action, currentCost, currentDelay, currentDeliveryType, currentProsperity, currentFood, currentEnergy, currentMaterials, moneySpent);
+        Node child = new Node(parent, action, currentCost, currentDelay, currentDeliveryType, currentProsperity, currentFood, currentEnergy, currentMaterials, moneySpent,
+        h1, h2);
         expandedNodes++;
         return child;
     }
-    static Node createChild(Node parent, String action, String deliveryType, int initialDelay){  // request
+    static Node createChild(Node parent, String action, String deliveryType, int initialDelay, int h1, int h2){  // request
         planArr.add(action);
         currentCost = getCost(action);
         currentProsperity = parent.getState().getProsperity();
@@ -291,7 +400,8 @@ public class LLAPSearch extends GenericSearch {
         currentEnergy = parent.getState().getEnergy() - 1;
         currentMaterials = parent.getState().getMaterials() - 1;
         moneySpent =  parent.getState().getMoneySpent() + currentCost;
-        Node child = new Node(parent, action, currentCost, initialDelay, deliveryType, currentProsperity, currentFood, currentEnergy, currentMaterials, moneySpent);
+        Node child = new Node(parent, action, currentCost, initialDelay, deliveryType, currentProsperity, currentFood, currentEnergy, currentMaterials, moneySpent,
+        h1, h2);
         expandedNodes++;
         return child;
     }
@@ -299,40 +409,42 @@ public class LLAPSearch extends GenericSearch {
     
     static Node requestFood(Node parent){
         decrementResources();
-
-        return createChild(parent, "requestFood", "food", delayRequestFood);
+        return createChild(parent, "requestFood", "food", delayRequestFood, parent.getHeuristic1(), parent.getHeuristic2());
     }
 
     static Node requestMaterials(Node parent){
         decrementResources();
-        return createChild(parent, "requestMaterials", "materials", delayRequestMaterials);
+        return createChild(parent, "requestMaterials", "materials", delayRequestMaterials, parent.getHeuristic1(), parent.getHeuristic2());
     }
 
     static Node requestEnergy(Node parent){
         decrementResources();
-        return createChild(parent, "requestEnergy", "energy", delayRequestEnergy);
+        return createChild(parent, "requestEnergy", "energy", delayRequestEnergy, parent.getHeuristic1(), parent.getHeuristic2());
     }
 
     static Node WAIT(Node parent){
         decrementResources();
+        heuristic1 = parent.getHeuristic1() + unitPriceEnergy + unitPriceFood + unitPriceMaterials;
         if (delay > 0) delay--;
-        return createChild(parent, "WAIT", 0,1,1,1);
+        return createChild(parent, "WAIT", 0,1,1,1, heuristic1, parent.getHeuristic2());
     }
     
     static Node build1(Node parent){    // only actions that affect prosperity level
         if (delay > 0) delay--;
         cost = priceBUILD1 + unitPriceEnergy * energyUseBUILD1 + unitPriceFood * foodUseBUILD1 + unitPriceMaterials * materialsUseBUILD1;
         monetaryCost += cost;
+        heuristic2 = parent.getHeuristic2() + cost;
         money -= cost;
-        return createChild(parent, "build1", prosperityBUILD1, foodUseBUILD1, energyUseBUILD1, materialsUseBUILD1);
+        return createChild(parent, "build1", prosperityBUILD1, foodUseBUILD1, energyUseBUILD1, materialsUseBUILD1, parent.getHeuristic1(), heuristic2);
     }
 
     static Node build2(Node parent){
         if (delay > 0) delay--;
         cost = priceBUILD2 + unitPriceEnergy * energyUseBUILD2 + unitPriceFood * foodUseBUILD2 + unitPriceMaterials * materialsUseBUILD2;
+        heuristic2 = parent.getHeuristic2() + cost;
         monetaryCost += cost;
         money -= cost;
-        return createChild(parent, "build2", prosperityBUILD2, foodUseBUILD2, energyUseBUILD2, materialsUseBUILD2);
+        return createChild(parent, "build2", prosperityBUILD2, foodUseBUILD2, energyUseBUILD2, materialsUseBUILD2, parent.getHeuristic1(), heuristic2);
     }
 
     static void decrementResources(){
@@ -397,7 +509,7 @@ public class LLAPSearch extends GenericSearch {
         energyUseBUILD2 = Integer.parseInt(values[index++]);
         prosperityBUILD2 = Integer.parseInt(values[index++]);
 
-        return new Node(null, "root", 0, 0, "none", prosperity, food, energy, materials, 0);
+        return new Node(null, "root", 0, 0, "none", prosperity, food, energy, materials, 0, 0, 0);
 
     }
     
@@ -434,7 +546,7 @@ public class LLAPSearch extends GenericSearch {
                 "30,2;19,2;15,2;" +
                 "300,5,7,3,20;" +
                 "500,8,6,3,40;";
-        solve(initialState1,"BF",false);
+        solve(initialState1,"AS1",false);
       //  printVariables();
     }
 }

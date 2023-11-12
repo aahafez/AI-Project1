@@ -3,8 +3,9 @@ import java.util.Queue;
 
 public abstract class GenericSearch {
     Queue<Node> queue;
-    protected Node makeNode(Node parent, String action, int cost, int delay, String deliveryType, int prosperity, int food, int energy, int materials, int moneySpent){
-        return new Node(parent, action, cost, delay, deliveryType, prosperity, food, energy, materials, moneySpent);
+    protected Node makeNode(Node parent, String action, int cost, int delay, String deliveryType, int prosperity, int food, int energy, int materials, int moneySpent,
+    int h1, int h2){
+        return new Node(parent, action, cost, delay, deliveryType, prosperity, food, energy, materials, moneySpent, h1, h2);
     }
     
     protected boolean goalTest(Node node){

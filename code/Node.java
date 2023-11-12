@@ -9,13 +9,18 @@ public class Node {
     private String deliveryType;
     private int delay;
     private String action;
+    private int heuristic1;
+    private int heuristic2;
 
-    public Node(Node parent, String action, int cost, int delay, String deliveryType, int prosperity, int food, int energy, int materials, int moneySpent) {
+    public Node(Node parent, String action, int cost, int delay, String deliveryType, int prosperity, int food, int energy, int materials, int moneySpent,
+     int h1, int h2) {
         this.parent = parent;
         this.cost = cost;
         this.delay = delay;
         this.deliveryType = deliveryType;
         this.action = action;
+        this.heuristic1 = h1;
+        this.heuristic2 = h2;
         this.state = new State(prosperity, food, energy, materials, moneySpent);
     }
 
@@ -33,6 +38,22 @@ public class Node {
         } else {
             return parent.getCost() + cost;
         }
+    }
+
+    public int getHeuristic1(){
+        return heuristic1;
+    }
+
+    public int getHeuristic2() {
+        return heuristic2;
+    }
+
+    public int getStarHeuristic1() {
+        return getCumCost() + heuristic1;
+    }
+    
+    public int getStarHeuristic2() {
+        return getCumCost() + heuristic2;
     }
 
     public Node getParent() {
