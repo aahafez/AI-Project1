@@ -284,6 +284,8 @@ public boolean applyPlan(String grid, String solution){
 	LLAPPlanChecker s = new LLAPPlanChecker(grid);
 	linkin = tryPlan(actions,s);
     System.out.println("test answer: " + s.v12);
+    System.out.println(s.v12 ==blue);
+    System.out.println(s.cool());
 	if(!linkin) {
 		return false;
 		}

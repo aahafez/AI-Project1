@@ -28,11 +28,12 @@ public class Node {
     }
 
     public int getCumCost(){
-        if (parent == null){ //stopping condition
-            return cost;
-        } else {
-            return parent.getCost() + cost;
-        }
+        // if (parent == null){ //stopping condition
+        //     return cost;
+        // } else {
+        //     return parent.getCost() + cost;
+        // }
+        return state.getMoneySpent();
     }
 
     public Node getParent() {
