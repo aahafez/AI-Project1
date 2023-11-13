@@ -38,7 +38,7 @@ public class LLAPSearch extends GenericSearch {
     static int currentMoney;
 
     static int heuristic1 = 0; // sum of WAIT costs till currentnode
-    static int heuristic2 = 0; // sum of bulding costs till currentnode
+    static int heuristic2; // sum of bulding costs till currentnode
 
     public static String solve(String initialState, String strategy, boolean visualize){
         Node root = initializeVariables(initialState);
@@ -359,6 +359,10 @@ public class LLAPSearch extends GenericSearch {
         currentCost = getCost(action);
         currentProsperity = parent.getState().getProsperity() + prosperity;
         if (currentProsperity > 100) currentProsperity = 100;
+        /*if (prosperity != 0)    // not WAIT
+            heuristic2 = ((100 - currentProsperity)/prosperity) * getCost(action); 
+        else 
+            heuristic2 = h2;*/ 
         currentFood = parent.getState().getFood() - food;
         currentEnergy = parent.getState().getEnergy() - energy;
         currentMaterials = parent.getState().getMaterials() - materials;
@@ -409,42 +413,46 @@ public class LLAPSearch extends GenericSearch {
     
     static Node requestFood(Node parent){
         decrementResources();
-        return createChild(parent, "requestFood", "food", delayRequestFood, parent.getHeuristic1(), parent.getHeuristic2());
+        heuristic2 = parent.getHeuristic2() + unitPriceEnergy + unitPriceFood + unitPriceMaterials;
+        return createChild(parent, "requestFood", "food", delayRequestFood, parent.getHeuristic1(), heuristic2);
     }
 
     static Node requestMaterials(Node parent){
         decrementResources();
-        return createChild(parent, "requestMaterials", "materials", delayRequestMaterials, parent.getHeuristic1(), parent.getHeuristic2());
+        heuristic2 = parent.getHeuristic2() + unitPriceEnergy + unitPriceFood + unitPriceMaterials;
+        return createChild(parent, "requestMaterials", "materials", delayRequestMaterials, parent.getHeuristic1(), heuristic2);
     }
 
     static Node requestEnergy(Node parent){
         decrementResources();
-        return createChild(parent, "requestEnergy", "energy", delayRequestEnergy, parent.getHeuristic1(), parent.getHeuristic2());
+        heuristic2 = parent.getHeuristic2() + unitPriceEnergy + unitPriceFood + unitPriceMaterials;
+        return createChild(parent, "requestEnergy", "energy", delayRequestEnergy, parent.getHeuristic1(), heuristic2);
     }
 
     static Node WAIT(Node parent){
         decrementResources();
         heuristic1 = parent.getHeuristic1() + unitPriceEnergy + unitPriceFood + unitPriceMaterials;
+        heuristic2 = parent.getHeuristic2() + unitPriceEnergy + unitPriceFood + unitPriceMaterials;
         if (delay > 0) delay--;
-        return createChild(parent, "WAIT", 0,1,1,1, heuristic1, parent.getHeuristic2());
+        return createChild(parent, "WAIT", 0,1,1,1, heuristic1, heuristic2);
     }
     
     static Node build1(Node parent){    // only actions that affect prosperity level
         if (delay > 0) delay--;
         cost = priceBUILD1 + unitPriceEnergy * energyUseBUILD1 + unitPriceFood * foodUseBUILD1 + unitPriceMaterials * materialsUseBUILD1;
         monetaryCost += cost;
-        heuristic2 = parent.getHeuristic2() + cost;
+        //heuristic2 = ((100 - currentProsperity)/prosperityBUILD1) * getCost("build1");
         money -= cost;
-        return createChild(parent, "build1", prosperityBUILD1, foodUseBUILD1, energyUseBUILD1, materialsUseBUILD1, parent.getHeuristic1(), heuristic2);
+        return createChild(parent, "build1", prosperityBUILD1, foodUseBUILD1, energyUseBUILD1, materialsUseBUILD1, parent.getHeuristic1(), parent.getHeuristic2());
     }
 
     static Node build2(Node parent){
         if (delay > 0) delay--;
         cost = priceBUILD2 + unitPriceEnergy * energyUseBUILD2 + unitPriceFood * foodUseBUILD2 + unitPriceMaterials * materialsUseBUILD2;
-        heuristic2 = parent.getHeuristic2() + cost;
+        //heuristic2 = ((100 - currentProsperity)/prosperityBUILD2) * getCost("build2");
         monetaryCost += cost;
         money -= cost;
-        return createChild(parent, "build2", prosperityBUILD2, foodUseBUILD2, energyUseBUILD2, materialsUseBUILD2, parent.getHeuristic1(), heuristic2);
+        return createChild(parent, "build2", prosperityBUILD2, foodUseBUILD2, energyUseBUILD2, materialsUseBUILD2, parent.getHeuristic1(), parent.getHeuristic2());
     }
 
     static void decrementResources(){
@@ -546,7 +554,7 @@ public class LLAPSearch extends GenericSearch {
                 "30,2;19,2;15,2;" +
                 "300,5,7,3,20;" +
                 "500,8,6,3,40;";
-        solve(initialState1,"AS1",false);
+        solve(initialState1,"AS2",false);
       //  printVariables();
     }
 }
