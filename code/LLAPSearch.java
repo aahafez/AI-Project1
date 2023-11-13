@@ -122,6 +122,28 @@ public class LLAPSearch extends GenericSearch {
         return expansionList;
     }
 
+    public static Queue<Node> expandUC(Node node){
+        Queue<Node> expansionList = new LinkedList<>();
+        // which children to make
+
+        currentMoney = 100000 - node.getState().getMoneySpent();
+        boolean build1flag = node.getState().getFood() >= foodUseBUILD1 && node.getState().getEnergy() >= energyUseBUILD1 && node.getState().getMaterials() >= materialsUseBUILD1 &&  currentMoney >= priceBUILD1;
+        boolean build2flag = node.getState().getFood() >= foodUseBUILD2 && node.getState().getEnergy() >= energyUseBUILD2 && node.getState().getMaterials() >= materialsUseBUILD2 &&  currentMoney >= priceBUILD2;
+        if(build1flag || build2flag){
+            if(build1flag) expansionList.add(build1(node));
+            if(build2flag) expansionList.add(build2(node));
+        }
+        else if(node.getState().getFood() >= 1 && node.getState().getEnergy() >= 1 && node.getState().getMaterials() >= 1 && currentMoney >= (unitPriceEnergy + unitPriceFood + unitPriceMaterials) ){
+                if (node.getDelay() == 0){
+                    expansionList.add(requestMaterials(node));
+                    expansionList.add(requestFood(node));
+                    expansionList.add(requestEnergy(node));
+                }
+                expansionList.add(WAIT(node));
+            }
+        return expansionList;
+    }
+
     public static int getCost(String action) {
         switch (action.toLowerCase()) {
             case "requestfood":
@@ -165,7 +187,6 @@ public class LLAPSearch extends GenericSearch {
                // System.out.println("Goal found with cost: " + currentNode.getCost());
                // System.out.println("Path to goal: " + currentNode.getPath());
                System.out.println("Final propserity: " + currentNode.getState().getProsperity());
-               System.out.println("Final cost: " + currentNode.getCumCost());
                 break;
             }
             if (currentNode.getState().getMoneySpent() >= 100000){
@@ -187,33 +208,38 @@ public class LLAPSearch extends GenericSearch {
     }
 
     static String UC(Node root){
-        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getCumCost));
-        priorityQueue.add(root);
-        while(!priorityQueue.isEmpty()){
-            Node currentNode = priorityQueue.poll();
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingInt(Node::getCumCost));
+        queue.add(root);
+        Node currentNode = null;
+        while(!queue.isEmpty()){
+            currentNode = queue.poll();
 
             if (visitedNodes.contains(currentNode.getPath())) {
                 continue; // Skip the node if already visited
             }
 
             visitedNodes.add(currentNode.getPath());
-            // System.out.println(currentNode.getState());
-            // System.out.println(currentNode.getPath());
-            // System.out.print(currentNode.getDeliveryType());
-            // System.out.println(currentNode.getDelay());
+        //     System.out.println(currentNode.getState());
+        //   //  System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
+        //     System.out.println(currentNode.getPath());
+        //     System.out.print(currentNode.getDeliveryType());
+        //     System.out.println(currentNode.getDelay());
             // System.out.println("_____________________");
             if (currentNode.isGoal()) {
                // System.out.println("Goal found with cost: " + currentNode.getCost());
                // System.out.println("Path to goal: " + currentNode.getPath());
+               System.out.println("Final propserity: " + currentNode.getState().getProsperity());
                 break;
             }
-
-            for (Node child : expand(currentNode)) {
-                priorityQueue.add(child);
+            if (currentNode.getState().getMoneySpent() >= 100000){
+                return "NOSOLUTION";
+            }
+            for (Node child : expandUC(currentNode)) {
+                queue.add(child);
             }
         }
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + expandedNodes;
+        String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
     }
 
@@ -497,7 +523,7 @@ public class LLAPSearch extends GenericSearch {
 			"9,1;9,2;9,1;" +
 			"358,14,25,23,39;" +
 			"5024,20,17,17,38;";
-        solve(initialState2,"BF",false);
+        solve(initialState0,"UC",false);
       //  printVariables();
     }
 }
