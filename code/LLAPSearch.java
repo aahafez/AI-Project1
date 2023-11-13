@@ -47,7 +47,7 @@ public class LLAPSearch extends GenericSearch {
                 result = BF(root);
                 break;
             case "DF":
-                result = DF();
+                result = DF(root);
                 break;
             case "UC":
                 result = UC(root);
@@ -144,6 +144,29 @@ public class LLAPSearch extends GenericSearch {
         return expansionList;
     }
 
+    public static Queue<Node> expandDF(Node node){
+        Queue<Node> expansionList = new LinkedList<>();
+        // which children to make
+
+        currentMoney = 100000 - node.getState().getMoneySpent();
+        if(node.getState().getFood() >= 1 && node.getState().getEnergy() >= 1 && node.getState().getMaterials() >= 1 && currentMoney >= (unitPriceEnergy + unitPriceFood + unitPriceMaterials) ){
+            expansionList.add(WAIT(node));
+                if (node.getDelay() == 0){
+                    expansionList.add(requestMaterials(node));
+                    expansionList.add(requestFood(node));
+                    expansionList.add(requestEnergy(node));
+                }
+            }
+        if(node.getState().getFood() >= foodUseBUILD1 && node.getState().getEnergy() >= energyUseBUILD1 && node.getState().getMaterials() >= materialsUseBUILD1 &&  currentMoney >= priceBUILD1){
+            expansionList.add(build1(node));
+        }
+        if(node.getState().getFood() >= foodUseBUILD2 && node.getState().getEnergy() >= energyUseBUILD2 && node.getState().getMaterials() >= materialsUseBUILD2 && currentMoney >= priceBUILD2){
+            expansionList.add(build2(node));
+        }
+        
+        return expansionList;
+    }
+
     public static int getCost(String action) {
         switch (action.toLowerCase()) {
             case "requestfood":
@@ -201,9 +224,36 @@ public class LLAPSearch extends GenericSearch {
         return result;
     }
 
-    static String DF(){
+    static String DF(Node root){
+        Stack<Node> queue = new Stack<>();
+        queue.push(root);
+        Node currentNode = null;
+
+        while (!queue.isEmpty()) {
+            currentNode = queue.pop();
+
+            if (visitedNodes.contains(currentNode.getPath())) {
+                continue;
+            }
+
+            visitedNodes.add(currentNode.getPath());
+
+            if (currentNode.isGoal()) {
+                System.out.println("Final propserity: " + currentNode.getState().getProsperity());
+                break;
+            }
+
+            if (currentNode.getState().getMoneySpent() >= 100000){
+                return "NOSOLUTION";
+            }
+
+            for (Node child : expandDF(currentNode)) {
+                queue.push(child);
+            }
+        }
+
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
     }
 
@@ -228,7 +278,7 @@ public class LLAPSearch extends GenericSearch {
             if (currentNode.isGoal()) {
                // System.out.println("Goal found with cost: " + currentNode.getCost());
                // System.out.println("Path to goal: " + currentNode.getPath());
-               System.out.println("Final propserity: " + currentNode.getState().getProsperity());
+               
                 break;
             }
             if (currentNode.getState().getMoneySpent() >= 100000){
@@ -239,6 +289,7 @@ public class LLAPSearch extends GenericSearch {
             }
         }
         plan = arrayListToString(planArr, ",");
+        System.out.println("Final propserity: " + currentNode.getState().getProsperity());
         String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
     }
@@ -523,7 +574,7 @@ public class LLAPSearch extends GenericSearch {
 			"9,1;9,2;9,1;" +
 			"358,14,25,23,39;" +
 			"5024,20,17,17,38;";
-        solve(initialState0,"UC",false);
+        solve(initialState2,"UC",false);
       //  printVariables();
     }
 }
