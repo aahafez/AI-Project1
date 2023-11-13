@@ -53,7 +53,7 @@ public class LLAPSearch extends GenericSearch {
                 result = UC(root);
                 break;
             case "ID":
-                result = ID();
+                result = ID(root);
                 break;
             case "GR1":
                 result = GR1();
@@ -294,12 +294,45 @@ public class LLAPSearch extends GenericSearch {
         return result;
     }
 
-    static String ID(){
-        // slide 65 in lecture 2
-        plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
-        return result;
+    static String ID(Node root){
+        Stack<Node> queue = new Stack<>();
+        queue.push(root);
+        Node currentNode = null;
+
+        int i = 0;
+        int expansionDepth = 0;
+
+        while (expansionDepth <= i) {
+            while (!queue.isEmpty()) {
+            currentNode = queue.pop();
+
+            if (visitedNodes.contains(currentNode.getPath())) {
+                continue;
+            }
+
+            visitedNodes.add(currentNode.getPath());
+
+            if (currentNode.isGoal()) {
+                System.out.println("Final propserity: " + currentNode.getState().getProsperity());
+                break;
+            }
+
+            if (currentNode.getState().getMoneySpent() >= 100000){
+                return "NOSOLUTION";
+            }
+
+            for (Node child : expandDF(currentNode)) {
+                queue.push(child);
+            }
+            expansionDepth++;
+        }
+        i++;
     }
+    plan = arrayListToString(planArr, ",");
+    System.out.println("Final propserity: " + currentNode.getState().getProsperity());
+    String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
+    return result;
+}
 
     static String GR1(){
         plan = arrayListToString(planArr, ",");
