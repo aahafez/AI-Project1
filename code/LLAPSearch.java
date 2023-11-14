@@ -125,6 +125,28 @@ public class LLAPSearch extends GenericSearch {
         return expansionList;
     }
 
+    public static Queue<Node> expandUC(Node node){
+        Queue<Node> expansionList = new LinkedList<>();
+        // which children to make
+
+        currentMoney = 100000 - node.getState().getMoneySpent();
+        boolean build1flag = node.getState().getFood() >= foodUseBUILD1 && node.getState().getEnergy() >= energyUseBUILD1 && node.getState().getMaterials() >= materialsUseBUILD1 &&  currentMoney >= priceBUILD1;
+        boolean build2flag = node.getState().getFood() >= foodUseBUILD2 && node.getState().getEnergy() >= energyUseBUILD2 && node.getState().getMaterials() >= materialsUseBUILD2 &&  currentMoney >= priceBUILD2;
+        if(build1flag || build2flag){
+            if(build1flag) expansionList.add(build1(node));
+            if(build2flag) expansionList.add(build2(node));
+        }
+        else if(node.getState().getFood() >= 1 && node.getState().getEnergy() >= 1 && node.getState().getMaterials() >= 1 && currentMoney >= (unitPriceEnergy + unitPriceFood + unitPriceMaterials) ){
+                if (node.getDelay() == 0){
+                    expansionList.add(requestMaterials(node));
+                    expansionList.add(requestFood(node));
+                    expansionList.add(requestEnergy(node));
+                }
+                expansionList.add(WAIT(node));
+            }
+        return expansionList;
+    }
+
     public static int getCost(String action) {
         switch (action.toLowerCase()) {
             case "requestfood":
@@ -313,7 +335,7 @@ public class LLAPSearch extends GenericSearch {
                 break;
             }
 
-            for (Node child : expand(currentNode)) {
+            for (Node child : expandUC(currentNode)) {
                 priorityQueue.add(child);
             }
         }
@@ -345,7 +367,7 @@ public class LLAPSearch extends GenericSearch {
                 break;
             }
 
-            for (Node child : expand(currentNode)) {
+            for (Node child : expandUC(currentNode)) {
                 priorityQueue.add(child);
             }
         }
@@ -557,7 +579,7 @@ public class LLAPSearch extends GenericSearch {
                 "30,2;19,2;15,2;" +
                 "300,5,7,3,20;" +
                 "500,8,6,3,40;";
-        solve(initialState1,"GR2",false);
+        solve(initialState1,"AS2",false);
       //  printVariables();
     }
 }
