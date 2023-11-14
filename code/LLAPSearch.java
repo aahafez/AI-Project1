@@ -108,10 +108,10 @@ public class LLAPSearch extends GenericSearch {
         // which children to make
 
         currentMoney = 100000 - node.getState().getMoneySpent();
-        if(node.getState().getFood() >= foodUseBUILD1 && node.getState().getEnergy() >= energyUseBUILD1 && node.getState().getMaterials() >= materialsUseBUILD1 &&  currentMoney >= priceBUILD1){
+        if(node.getState().getFood() >= foodUseBUILD1 && node.getState().getEnergy() >= energyUseBUILD1 && node.getState().getMaterials() >= materialsUseBUILD1 &&  currentMoney >= getCost("build1")){
             expansionList.add(build1(node));
         }
-        if(node.getState().getFood() >= foodUseBUILD2 && node.getState().getEnergy() >= energyUseBUILD2 && node.getState().getMaterials() >= materialsUseBUILD2 && currentMoney >= priceBUILD2){
+        if(node.getState().getFood() >= foodUseBUILD2 && node.getState().getEnergy() >= energyUseBUILD2 && node.getState().getMaterials() >= materialsUseBUILD2 && currentMoney >= getCost("build2")){
             expansionList.add(build2(node));
         }
         if(node.getState().getFood() >= 1 && node.getState().getEnergy() >= 1 && node.getState().getMaterials() >= 1 && currentMoney >= (unitPriceEnergy + unitPriceFood + unitPriceMaterials) ){
@@ -231,7 +231,7 @@ public class LLAPSearch extends GenericSearch {
                 break;
             }
 
-            for (Node child : expand(currentNode)) {
+            for (Node child : expandUC(currentNode)) {
                 priorityQueue.add(child);
             }
         }
@@ -248,7 +248,6 @@ public class LLAPSearch extends GenericSearch {
     }
 
     static String GR1(Node root){
-        //  int comp = getCumCost() + heuristic1;
         PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getHeuristic1));
         priorityQueue.add(root);
         while(!priorityQueue.isEmpty()){
@@ -266,8 +265,8 @@ public class LLAPSearch extends GenericSearch {
             System.out.println(currentNode.getHeuristic1() + " ;;; " + heuristic1);
             System.out.println("_____________________");
             if (currentNode.isGoal()) {
-               // System.out.println("Goal found with cost: " + currentNode.getCost());
-               // System.out.println("Path to goal: " + currentNode.getPath());
+                // System.out.println("Goal found with cost: " + currentNode.getCumCost());
+                // System.out.println("Path to goal: " + currentNode.getPath());
                 break;
             }
 
@@ -291,12 +290,8 @@ public class LLAPSearch extends GenericSearch {
             }
 
             visitedNodes.add(currentNode);
-            System.out.println(currentNode.getState());
-            System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
-            System.out.print(currentNode.getDeliveryType());
-            System.out.println(currentNode.getDelay());
-            System.out.println(currentNode.getHeuristic2() + " ;;; " + heuristic2);
-            System.out.println("_____________________");
+            /*System.out.println(currentNode.getCumStates());
+            System.out.println("_____________________");*/
             if (currentNode.isGoal()) {
                // System.out.println("Goal found with cost: " + currentNode.getCost());
                // System.out.println("Path to goal: " + currentNode.getPath());
@@ -376,15 +371,14 @@ public class LLAPSearch extends GenericSearch {
         return result;
     }
 
-    static Node createChild(Node parent, String action, int prosperity, int food, int energy, int materials, int h1, int h2){  // WAIT + build1 + build2
-        //System.out.println("H2 passed as: " + h2);
+    static Node createChild(Node parent, String action, int prosperityadd, int foodreq, int energyreq, int materialsreq, int h1, int h2){  // WAIT + build1 + build2
         planArr.add(action);
         currentCost = getCost(action);
-        currentProsperity = parent.getState().getProsperity() + prosperity;
+        currentProsperity = parent.getState().getProsperity() + prosperityadd;
         if (currentProsperity > 100) currentProsperity = 100;
-        currentFood = parent.getState().getFood() - food;
-        currentEnergy = parent.getState().getEnergy() - energy;
-        currentMaterials = parent.getState().getMaterials() - materials;
+        currentFood = parent.getState().getFood() - foodreq;
+        currentEnergy = parent.getState().getEnergy() - energyreq;
+        currentMaterials = parent.getState().getMaterials() - materialsreq;
         moneySpent =  parent.getState().getMoneySpent() + currentCost;
         currentDeliveryType = parent.getDeliveryType();
         currentDelay = parent.getDelay() - 1;
@@ -431,21 +425,33 @@ public class LLAPSearch extends GenericSearch {
 
     
     static Node requestFood(Node parent){
+        food = parent.getState().getFood();
+        materials = parent.getState().getMaterials();
+        energy = parent.getState().getEnergy();
         decrementResources();
         return createChild(parent, "requestFood", "food", delayRequestFood, parent.getHeuristic1(), parent.getHeuristic2());
     }
 
     static Node requestMaterials(Node parent){
+        food = parent.getState().getFood();
+        materials = parent.getState().getMaterials();
+        energy = parent.getState().getEnergy();
         decrementResources();
         return createChild(parent, "requestMaterials", "materials", delayRequestMaterials, parent.getHeuristic1(), parent.getHeuristic2());
     }
 
     static Node requestEnergy(Node parent){
+        food = parent.getState().getFood();
+        materials = parent.getState().getMaterials();
+        energy = parent.getState().getEnergy();
         decrementResources();
         return createChild(parent, "requestEnergy", "energy", delayRequestEnergy, parent.getHeuristic1(), parent.getHeuristic2());
     }
 
     static Node WAIT(Node parent){
+        food = parent.getState().getFood();
+        materials = parent.getState().getMaterials();
+        energy = parent.getState().getEnergy();
         decrementResources();
         if (delay > 0) delay--;
         return createChild(parent, "WAIT", 0,1,1,1, parent.getHeuristic1(), parent.getHeuristic2());
@@ -457,9 +463,8 @@ public class LLAPSearch extends GenericSearch {
         monetaryCost += cost;
         currentProsperity = parent.getState().getProsperity() + prosperityBUILD1;
         if(currentProsperity > 100) currentProsperity = 100;
-        heuristic1 = (100 - currentProsperity) * unitPriceFood;
+        heuristic1 = (int) ((100 - currentProsperity) * foodUseBUILD1 / (double) prosperityBUILD1) * unitPriceFood;
         heuristic2 = (int) ((100 - currentProsperity)/ (double) prosperityBUILD1) * cost;
-        //System.out.println("Heuristic2 is calculated as: " + heuristic2);
         money -= cost;
         return createChild(parent, "build1", prosperityBUILD1, foodUseBUILD1, energyUseBUILD1, materialsUseBUILD1, heuristic1, heuristic2);
     }
@@ -469,10 +474,8 @@ public class LLAPSearch extends GenericSearch {
         cost = priceBUILD2 + unitPriceEnergy * energyUseBUILD2 + unitPriceFood * foodUseBUILD2 + unitPriceMaterials * materialsUseBUILD2;
         currentProsperity = parent.getState().getProsperity() + prosperityBUILD2;
         if(currentProsperity > 100) currentProsperity = 100;
-        heuristic1 = (100 - currentProsperity) * unitPriceFood;
+        heuristic1 = (int) ((100 - currentProsperity) * foodUseBUILD2 / (double) prosperityBUILD2) * unitPriceFood;
         heuristic2 = (int) (((100 - currentProsperity)/(double) prosperityBUILD2) * cost);
-        //System.out.println(currentProsperity);
-        //System.out.println(prosperityBUILD2);
         monetaryCost += cost;
         money -= cost;
         return createChild(parent, "build2", prosperityBUILD2, foodUseBUILD2, energyUseBUILD2, materialsUseBUILD2, heuristic1, heuristic2);
@@ -579,7 +582,7 @@ public class LLAPSearch extends GenericSearch {
                 "30,2;19,2;15,2;" +
                 "300,5,7,3,20;" +
                 "500,8,6,3,40;";
-        solve(initialState1,"AS2",false);
+        solve(initialState1,"GR2",false);
       //  printVariables();
     }
 }

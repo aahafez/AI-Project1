@@ -24,6 +24,14 @@ public class Node {
         this.state = new State(prosperity, food, energy, materials, moneySpent);
     }
 
+    public String getCumStates(){
+        if (parent == null){
+            return state.toString();
+        } else {
+            return parent.getCumStates() + " --" + action + "--> " + state.toString();
+        }
+    }
+
     public State getState() {
         return state;
     }
