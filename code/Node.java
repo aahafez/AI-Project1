@@ -9,6 +9,7 @@ public class Node {
     private String deliveryType;
     private int delay;
     private String action;
+    private int hCost = 0;
 
     public Node(Node parent, String action, int cost, int delay, String deliveryType, int prosperity, int food, int energy, int materials, int moneySpent) {
         this.parent = parent;
@@ -25,6 +26,18 @@ public class Node {
 
     public int getCost() {
         return cost;
+    }
+
+    public int gethCost() {
+        return hCost;
+    }
+
+    public int getsCost(){
+        return hCost + getCumCost();
+    }
+
+    public void sethCost(int hCost) {
+        this.hCost = hCost;
     }
 
     public int getCumCost(){

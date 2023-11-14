@@ -57,16 +57,16 @@ public class LLAPSearch extends GenericSearch {
                 result = ID(root);
                 break;
             case "GR1":
-                result = GR1();
+                result = GR1(root);
                 break;
             case "GR2":
-                result = GR2();
+                result = GR2(root);
                 break;
             case "AS1":
-                result = AS1();
+                result = AS1(root);
                 break;
             case "AS2":
-                result = AS2();
+                result = AS2(root);
                 break;
             default:
                 result = "no result";
@@ -282,28 +282,100 @@ public class LLAPSearch extends GenericSearch {
     return result;
 }
 
-    static String GR1(){
+    static String GR1(Node root){
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingInt(Node::gethCost));
+        queue.add(root);
+        Node currentNode = null;
+        while(!queue.isEmpty()){
+            currentNode = queue.poll();
+            if (visitedNodes.contains(currentNode.getPath())) continue; // Skip the node if already visited 
+            visitedNodes.add(currentNode.getPath());
+            if (currentNode.isGoal()) break;
+            if (currentNode.getState().getMoneySpent() >= 100000) return "NOSOLUTION";
+            for (Node child : expand(currentNode)) {
+                child.sethCost(h1(child.getState().getProsperity()));
+                queue.add(child);
+            }
+        }
+
+        if (visualize) System.out.println(currentNode.getCumStates());
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
     }
 
-    static String GR2(){
+    static String GR2(Node root){
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingInt(Node::gethCost));
+        queue.add(root);
+        Node currentNode = null;
+        while(!queue.isEmpty()){
+            currentNode = queue.poll();
+            if (visitedNodes.contains(currentNode.getPath())) continue; // Skip the node if already visited 
+            visitedNodes.add(currentNode.getPath());
+            if (currentNode.isGoal()) break;
+            if (currentNode.getState().getMoneySpent() > 100000) return "NOSOLUTION";
+            for (Node child : expand(currentNode)) {
+                child.sethCost(h2(child.getState().getProsperity()));
+                queue.add(child);
+            }
+        }
+        
+        if (visualize) System.out.println(currentNode.getCumStates());
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
     }
 
-    static String AS1(){
+    static String AS1(Node root){
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingInt(Node::getsCost));
+        queue.add(root);
+        Node currentNode = null;
+        while(!queue.isEmpty()){
+            currentNode = queue.poll();
+            if (visitedNodes.contains(currentNode.getPath())) continue; // Skip the node if already visited 
+            visitedNodes.add(currentNode.getPath());
+            if (currentNode.isGoal()) break;
+            if (currentNode.getState().getMoneySpent() >= 100000) return "NOSOLUTION";
+            for (Node child : expandUC(currentNode)) {
+                child.sethCost(h1(child.getState().getProsperity()));
+                queue.add(child);
+            }
+        }
+
+        if (visualize) System.out.println(currentNode.getCumStates());
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
     }
 
-    static String AS2(){
+    static String AS2(Node root){
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingInt(Node::getsCost));
+        queue.add(root);
+        Node currentNode = null;
+        while(!queue.isEmpty()){
+            currentNode = queue.poll();
+            if (visitedNodes.contains(currentNode.getPath())) continue; // Skip the node if already visited 
+            visitedNodes.add(currentNode.getPath());
+            if (currentNode.isGoal()) break;
+            if (currentNode.getState().getMoneySpent() >= 100000) return "NOSOLUTION";
+            for (Node child : expandUC(currentNode)) {
+                child.sethCost(h2(child.getState().getProsperity()));
+                queue.add(child);
+            }
+        }
+
+        if (visualize) System.out.println(currentNode.getCumStates());
         plan = arrayListToString(planArr, ",");
-        String result = plan + ";" + monetaryCost + ";" + nodesExpanded;
+        String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
+    }
+
+    static int h1(int p){
+       return (int) ((100 - p) * foodUseBUILD1 / (double) prosperityBUILD1) * unitPriceFood;
+    }
+
+    static int h2(int p){
+       return (int) ((100 - p)/ (double) prosperityBUILD1) * getCost("build1");
     }
 
     static Node createChild(Node parent, String action, int prosperity, int food, int energy, int materials){  // WAIT + build1 + build2
@@ -555,7 +627,7 @@ public class LLAPSearch extends GenericSearch {
 			"9,1;9,2;9,1;" +
 			"358,14,25,23,39;" +
 			"5024,20,17,17,38;";
-        solve(initialState3,"UC",true);
+        solve(initialState2,"GR2",true);
       //  printVariables();
     }
 }
