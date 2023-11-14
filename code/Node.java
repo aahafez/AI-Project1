@@ -72,6 +72,14 @@ public class Node {
         }
     }
 
+    public String getCumStates(){
+        if (parent == null){
+            return state.toString();
+        } else {
+            return parent.getCumStates() + " --" + action + "--> " + state.toString();
+        }
+    }
+
     public boolean isGoal(){
         return state.getProsperity() >= 100;
     }
@@ -80,20 +88,6 @@ public class Node {
             return "prosperity=" + state.getProsperity() + ", food=" + state.getFood() +
              ", materials=" + state.getMaterials() + ", energy=" + state.getEnergy() + ", money_spent=" + state.getMoneySpent();
     }
-
-    @Override
-        public int hashCode() {
-            // Implement a custom hashCode method based on the properties that define a unique state
-            return Objects.hash(action, state.getFood(), state.getEnergy(), state.getMaterials());
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-            Node node = (Node) obj;
-            return Objects.equals(action, node.action) && Objects.equals(state, node.state);
-        }
 
     public static class State {
 

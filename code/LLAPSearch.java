@@ -36,10 +36,11 @@ public class LLAPSearch extends GenericSearch {
     static int expandedNodes;
     static Set<String> visitedNodes;
     static int currentMoney;
+    static boolean visualize;
 
-    public static String solve(String initialState, String strategy, boolean visualize){
+    public static String solve(String initialState, String strategy, boolean flag){
         Node root = initializeVariables(initialState);
-
+        visualize = flag;
         // INSERT LOGIC HERE
         String result;
         switch (strategy) {
@@ -194,31 +195,16 @@ public class LLAPSearch extends GenericSearch {
         Node currentNode = null;
         while(!queue.isEmpty()){
             currentNode = queue.poll();
-
-            if (visitedNodes.contains(currentNode.getPath())) {
-                continue; // Skip the node if already visited
-            }
-
+            if (visitedNodes.contains(currentNode.getPath())) continue; // Skip the node if already visited
             visitedNodes.add(currentNode.getPath());
-        //     System.out.println(currentNode.getState());
-        //   //  System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
-        //     System.out.println(currentNode.getPath());
-        //     System.out.print(currentNode.getDeliveryType());
-        //     System.out.println(currentNode.getDelay());
-            // System.out.println("_____________________");
-            if (currentNode.isGoal()) {
-               // System.out.println("Goal found with cost: " + currentNode.getCost());
-               // System.out.println("Path to goal: " + currentNode.getPath());
-               System.out.println("Final propserity: " + currentNode.getState().getProsperity());
-                break;
-            }
-            if (currentNode.getState().getMoneySpent() >= 100000){
-                return "NOSOLUTION";
-            }
+            if (currentNode.isGoal()) break;
+            if (currentNode.getState().getMoneySpent() >= 100000) return "NOSOLUTION";
             for (Node child : expand(currentNode)) {
                 queue.add(child);
             }
         }
+
+        if (visualize) System.out.println(currentNode.getCumStates());
         plan = arrayListToString(planArr, ",");
         String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
@@ -231,27 +217,17 @@ public class LLAPSearch extends GenericSearch {
 
         while (!queue.isEmpty()) {
             currentNode = queue.pop();
-
-            if (visitedNodes.contains(currentNode.getPath())) {
-                continue;
-            }
-
+            if (visitedNodes.contains(currentNode.getPath())) continue;
             visitedNodes.add(currentNode.getPath());
-
-            if (currentNode.isGoal()) {
-                System.out.println("Final propserity: " + currentNode.getState().getProsperity());
-                break;
-            }
-
-            if (currentNode.getState().getMoneySpent() >= 100000){
-                return "NOSOLUTION";
-            }
-
+            if (currentNode.isGoal()) break;
+            if (currentNode.getState().getMoneySpent() >= 100000) return "NOSOLUTION";
+            
             for (Node child : expandDF(currentNode)) {
                 queue.push(child);
             }
         }
 
+        if (visualize) System.out.println(currentNode.getCumStates());
         plan = arrayListToString(planArr, ",");
         String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
@@ -263,33 +239,17 @@ public class LLAPSearch extends GenericSearch {
         Node currentNode = null;
         while(!queue.isEmpty()){
             currentNode = queue.poll();
-
-            if (visitedNodes.contains(currentNode.getPath())) {
-                continue; // Skip the node if already visited
-            }
-
+            if (visitedNodes.contains(currentNode.getPath())) continue; // Skip the node if already visited 
             visitedNodes.add(currentNode.getPath());
-        //     System.out.println(currentNode.getState());
-        //   //  System.out.println(currentNode.getParent() != null ? currentNode.getParent().getAction() + " ---> "+ currentNode.getAction() : currentNode.getAction());
-        //     System.out.println(currentNode.getPath());
-        //     System.out.print(currentNode.getDeliveryType());
-        //     System.out.println(currentNode.getDelay());
-            // System.out.println("_____________________");
-            if (currentNode.isGoal()) {
-               // System.out.println("Goal found with cost: " + currentNode.getCost());
-               // System.out.println("Path to goal: " + currentNode.getPath());
-               
-                break;
-            }
-            if (currentNode.getState().getMoneySpent() >= 100000){
-                return "NOSOLUTION";
-            }
+            if (currentNode.isGoal()) break;
+            if (currentNode.getState().getMoneySpent() >= 100000) return "NOSOLUTION";
             for (Node child : expandUC(currentNode)) {
                 queue.add(child);
             }
         }
+
+        if (visualize) System.out.println(currentNode.getCumStates());
         plan = arrayListToString(planArr, ",");
-        System.out.println("Final propserity: " + currentNode.getState().getProsperity());
         String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
         return result;
     }
@@ -304,32 +264,20 @@ public class LLAPSearch extends GenericSearch {
 
         while (expansionDepth <= i) {
             while (!queue.isEmpty()) {
-            currentNode = queue.pop();
-
-            if (visitedNodes.contains(currentNode.getPath())) {
-                continue;
-            }
-
-            visitedNodes.add(currentNode.getPath());
-
-            if (currentNode.isGoal()) {
-                System.out.println("Final propserity: " + currentNode.getState().getProsperity());
-                break;
-            }
-
-            if (currentNode.getState().getMoneySpent() >= 100000){
-                return "NOSOLUTION";
-            }
-
-            for (Node child : expandDF(currentNode)) {
-                queue.push(child);
-            }
-            expansionDepth++;
+                currentNode = queue.pop();
+                if (visitedNodes.contains(currentNode.getPath())) continue;
+                visitedNodes.add(currentNode.getPath());
+                if (currentNode.isGoal()) break;
+                if (currentNode.getState().getMoneySpent() >= 100000) return "NOSOLUTION";
+                for (Node child : expandDF(currentNode)) {
+                    queue.push(child);
+                }
+                expansionDepth++;
         }
         i++;
     }
+    if (visualize) System.out.println(currentNode.getCumStates());
     plan = arrayListToString(planArr, ",");
-    System.out.println("Final propserity: " + currentNode.getState().getProsperity());
     String result = currentNode.getPath().replace("root,","") + ";" + currentNode.getState().getMoneySpent() + ";" + expandedNodes;
     return result;
 }
@@ -607,7 +555,7 @@ public class LLAPSearch extends GenericSearch {
 			"9,1;9,2;9,1;" +
 			"358,14,25,23,39;" +
 			"5024,20,17,17,38;";
-        solve(initialState2,"UC",false);
+        solve(initialState3,"UC",true);
       //  printVariables();
     }
 }
